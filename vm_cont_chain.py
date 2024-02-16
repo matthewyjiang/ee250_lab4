@@ -1,6 +1,3 @@
-"""EE 250L Lab 04 Starter Code
-Run vm_sub.py in a separate terminal on your VM."""
-
 import paho.mqtt.client as mqtt
 import time
 from datetime import datetime
@@ -12,14 +9,12 @@ def on_connect(client, userdata, flags, rc):
     print("Connected to server (i.e., broker) with result code "+str(rc))
 
 
+def on_message_ping(client, userdata, message):
+    time.sleep(1)
+    count = (int)(message.payload.decode())
+    client.publish("jiangmy/pong", count+1)
+
 if __name__ == '__main__':
-    #get IP address
-    ip_address=0 
-    
-    hostname = socket.gethostname()
-    ip_address = socket.gethostbyname(hostname)
-
-
     #create a client object
     client = mqtt.Client()
     
@@ -34,30 +29,23 @@ if __name__ == '__main__':
     client. If the connection request is successful, the callback attached to
     `client.on_connect` will be called."""
 
-    client.connect(host="test.mosquitto.org", port=1883, keepalive=60)
+    client.connect(host="172.20.10.13", port=1883, keepalive=60)
 
     """ask paho-mqtt to spawn a separate thread to handle
     incoming and outgoing mqtt messages."""
     client.loop_start()
     time.sleep(1)
 
-    while True:
-        #replace user with your USC username in all subscriptions
-        client.publish("jiangmy/ipinfo", f"{ip_address}")
-        print("Publishing ip address")
-        time.sleep(4)
+    client.subscribe("jiangmy/ping")
+    client.message_callback_add("jiangmy/ping", on_message_ping)
 
-        #get date and time 
-    
-        now = datetime.now()
-        cur_date = now.date()
-        cur_time = now.time()
 
-        #publish date and time in their own topics
-        """your code here"""
 
-        client.publish("jiangmy/date", f"{cur_date}")
-        print("Publishing date")
-        client.publish("jiangmy/time", f"{cur_time}")
-        print("Publishing time")
+
+
+
+
+
+
+
 
